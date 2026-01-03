@@ -1,0 +1,133 @@
+
+{
+  "info": {
+    "name": "E-commerce Phase 4 - Search APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Public Search",
+      "item": [
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search?q=laptop&page=1&limit=20&minPrice=20000&maxPrice=50000&sortBy=price_asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search"],
+              "query": [
+                {"key": "q", "value": "laptop"},
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "20"},
+                {"key": "minPrice", "value": "20000"},
+                {"key": "maxPrice", "value": "50000"},
+                {"key": "sortBy", "value": "price_asc"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Autocomplete",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search/autocomplete?q=laptop&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "autocomplete"],
+              "query": [
+                {"key": "q", "value": "laptop"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has success field\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('success');",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response has data with suggestions\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('suggestions');",
+                  "    pm.expect(jsonData.data.suggestions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search As You Type",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search/suggestions?q=lap&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "suggestions"],
+              "query": [
+                {"key": "q", "value": "lap"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Trending Searches",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search/trending?limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "trending"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Search Filters",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search/filters?q=laptop",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "filters"],
+              "query": [
+                {"key": "q", "value": "laptop"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Natural Language Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/search/nlp?q=show me laptops under 50000&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "search", "nlp"],
+              "query": [
+                {"key": "q", "value": "show me laptops under 50000"},
+                {"key": "page", "value": "1"},
+                {"key": "limit", "value": "20"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

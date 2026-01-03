@@ -12,6 +12,19 @@ const logger = require('./utils/logger');
 const authRoutes = require('./routes/auth.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
+const orderRoutes = require('./routes/order.routes');
+const webhookRoutes = require('./routes/webhook.routes');
+const adminOrderRoutes = require('./routes/admin/order.routes');
+const adminProductRoutes = require('./routes/admin/product.routes');
+const adminCategoryRoutes = require('./routes/admin/category.routes');
+const adminUserRoutes = require('./routes/admin/user.routes');
+const adminAnalyticsRoutes = require('./routes/admin/analytics.routes');
+const adminExportRoutes = require('./routes/admin/export.routes');
+const searchRoutes = require('./routes/search.routes');
+const adminSearchRoutes = require('./routes/admin/search.routes');
+const elasticsearchSyncJob = require('./jobs/elasticsearch-sync.job');
+
+
 
 // Import models to establish associations
 require('./models');
@@ -19,7 +32,11 @@ require('./models');
 const app = express();
 
 // Middleware
-app.use(helmet());
+// Configure Helmet with less restrictive settings for development
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false,
+  crossOriginEmbedderPolicy: false
+}));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   credentials: true
@@ -34,6 +51,20 @@ app.use(morgan('combined', {
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/webhooks', webhookRoutes);
+app.use('/api/admin/orders', adminOrderRoutes);
+app.use('/api/search', searchRoutes);
+
+
+// Admin routes
+app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/admin/categories', adminCategoryRoutes);
+app.use('/api/admin/users', adminUserRoutes);
+app.use('/api/admin/analytics', adminAnalyticsRoutes);
+app.use('/api/admin/export', adminExportRoutes);
+app.use('/api/admin/search', adminSearchRoutes);
+
 
 // Health check
 app.get('/health', (req, res) => {
@@ -43,6 +74,11 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Start scheduled jobs
+if (process.env.NODE_ENV === 'production') {
+  elasticsearchSyncJob.start();
+}
 
 // 404 handler
 app.use((req, res) => {
